@@ -36,8 +36,12 @@ func Parse(v string) (Type, error) {
 	return Type(t), nil
 }
 
-func (t Type) Equals(s string) bool {
+func (t Type) Matches(s string) bool {
 	return strings.EqualFold(t.String(), s)
+}
+
+func (t Type) Equals(s Type) bool {
+	return strings.EqualFold(t.String(), s.String())
 }
 
 func (t Type) String() string {
