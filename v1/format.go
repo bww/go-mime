@@ -3,6 +3,7 @@ package mime
 import (
 	"encoding/json"
 	"mime"
+	"sort"
 	"strings"
 )
 
@@ -28,12 +29,43 @@ var MarkdownCompatible = Options{
 	Markdown,
 }
 
+// Parse parses a mimetype string and returns a normalized type and the
+// parameters associated with it. If the type has any parameters, they
+// are sorted and the canonical type string is rewritten.
 func Parse(v string) (Type, map[string]string, error) {
 	t, p, err := mime.ParseMediaType(v)
 	if err != nil {
 		return Invalid, nil, err
 	}
-	return Type(t), p, nil
+
+	sb := &strings.Builder{}
+	sb.WriteString(t)
+
+	if l := len(p); l > 0 {
+		keys := make([]string, 0, l)
+		for k, _ := range p {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, e := range keys {
+			sb.WriteString(";")
+			sb.WriteString(e)
+			sb.WriteString("=")
+			sb.WriteString(p[e])
+		}
+	}
+
+	return Type(sb.String()), p, nil
+}
+
+// Base strips any parameters that may be present off the end of the
+// type and returns a new type representing its base.
+func (t Type) Base() Type {
+	if x := strings.Index(string(t), ";"); x >= 0 {
+		return Type(strings.TrimSpace(string(t)[:x]))
+	} else {
+		return t
+	}
 }
 
 func (t Type) Matches(s string) bool {
