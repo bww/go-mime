@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestType(t *testing.T) {
+func TestParse(t *testing.T) {
 	tests := []struct {
 		In         string
 		Type, Base Type
@@ -73,5 +73,41 @@ func TestType(t *testing.T) {
 			assert.Equal(t, e.Base, mt.Base(), "#%d", i)
 			assert.Equal(t, e.Params, p, "#%d", i)
 		}
+	}
+}
+
+func TestCompare(t *testing.T) {
+	tests := []struct {
+		A, B         Type
+		Equal, Match bool
+	}{
+		{
+			A:     Type("text/plain"),
+			B:     Type("text/plain"),
+			Equal: true,
+			Match: true,
+		},
+		{
+			A:     Type("text/plain;charset=utf8"),
+			B:     Type("text/plain"),
+			Equal: false,
+			Match: true,
+		},
+		{
+			A:     Type("text/plain;charset=utf8"),
+			B:     Type("text/plain;charset=utf8"),
+			Equal: true,
+			Match: true,
+		},
+		{
+			A:     Type("text/markdown"),
+			B:     Type("text/plain"),
+			Equal: false,
+			Match: false,
+		},
+	}
+	for i, e := range tests {
+		assert.Equal(t, e.Equal, e.A.Equals(e.B), "#%d", i)
+		assert.Equal(t, e.Match, e.A.Matches(e.B), "#%d", i)
 	}
 }

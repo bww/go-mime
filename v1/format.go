@@ -68,20 +68,26 @@ func (t Type) Base() Type {
 	}
 }
 
-func (t Type) Matches(s string) bool {
-	return strings.EqualFold(t.String(), s)
-}
-
+// Equals compares the provided type to the receiver exactly, including
+// all parameters.
 func (t Type) Equals(s Type) bool {
 	return strings.EqualFold(t.String(), s.String())
+}
+
+// Matches compares the provided type's base to the receiver type's base,
+// effectively excluding any parameters that either might have.
+func (t Type) Matches(s Type) bool {
+	return strings.EqualFold(t.Base().String(), s.Base().String())
 }
 
 func (t Type) String() string {
 	return string(t)
 }
 
+// Ext produces a filename extension (including the '.' separator) for
+// a variety of known types.
 func (t Type) Ext() string {
-	switch t {
+	switch t.Base() {
 	case Invalid:
 		return ""
 	case Text:
