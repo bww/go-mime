@@ -28,12 +28,12 @@ var MarkdownCompatible = Options{
 	Markdown,
 }
 
-func Parse(v string) (Type, error) {
-	t, _, err := mime.ParseMediaType(v)
+func Parse(v string) (Type, map[string]string, error) {
+	t, p, err := mime.ParseMediaType(v)
 	if err != nil {
-		return Invalid, err
+		return Invalid, nil, err
 	}
-	return Type(t), nil
+	return Type(t), p, nil
 }
 
 func (t Type) Matches(s string) bool {
